@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import UserLoginForm, UserRegistrationForm, ProfileRegistrationForm
+from .forms import UserLoginForm, UserRegistrationForm, BuyerRegistrationForm, SellerRegistrationForm
 from django.contrib import auth
 from django.contrib.auth import authenticate
 
@@ -38,17 +38,17 @@ def logout(request):
 def profile(request):
     return render(request, "accounts/profile.html")
     
-def register(request):
+def register_buyer(request):
     
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
-        profile_form = ProfileRegistrationForm(request.POST, request.FILES)
+        buyer_form = BuyerRegistrationForm(request.POST, request.FILES)
         
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid() and buyer_form.is_valid():
             user = user_form.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
+            buyer = buyer_form.save(commit=False)
+            buyer.user = user
+            buyer.save()
             
             u = user_form.cleaned_data['username']
             p = user_form.cleaned_data['password1']
@@ -61,6 +61,34 @@ def register(request):
                 user_form.add_error(None, "Can't log in now, try later.")
     else:
         user_form = UserRegistrationForm()
-        profile_form = ProfileRegistrationForm()
+        buyer_form = BuyerRegistrationForm()
 
-    return render(request, "accounts/register.html", {'form': user_form, 'profile_form': profile_form})
+    return render(request, "accounts/register.html", {'user_form': user_form, 'user_type_form': buyer_form})
+    
+
+def register_seller(request):
+    
+    if request.method == "POST":
+        user_form = UserRegistrationForm(request.POST)
+        seller_form = SellerRegistrationForm(request.POST, request.FILES)
+        
+        if user_form.is_valid() and seller_form.is_valid():
+            user = user_form.save()
+            seller = seller_form.save(commit=False)
+            seller.user = user
+            seller.save()
+            
+            u = user_form.cleaned_data['username']
+            p = user_form.cleaned_data['password1']
+            user = authenticate(username=u, password=p)
+            
+            if user is not None:
+                auth.login(request, user)
+                return redirect("/")
+            else:
+                user_form.add_error(None, "Can't log in now, try later.")
+    else:
+        user_form = UserRegistrationForm()
+        seller_form = SellerRegistrationForm()
+
+    return render(request, "accounts/register.html", {'user_form': user_form, 'user_type_form': seller_form})
