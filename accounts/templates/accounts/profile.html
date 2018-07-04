@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>Profile</h3>
+
+    <p><img height="600" src="{{ MEDIA_URL }}{{ user.Profile.image }}"></img></p>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Bio: {{ user.Profile.description }}</p>
+    
+{% endblock content %}
